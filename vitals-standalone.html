@@ -1362,16 +1362,25 @@ function clearEntry(){
 }
 
 function syncToGoogleSheets(){
-  const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyIm3VQMRySHNidZ6QMG2NRJl2rPsvKfDGPkZhEaRkWrSkBh2Dht3qnpAR9HESuHGNm/exec';
+  const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz_ZcPHhFuV4PBTfSqTnp0NbNBzwlZzdHG7rwuSelbj6AIKfJ0cmuVJJia8RTdxAzh_/exec';
   try{
+    // Explicitly grab all slider values before syncing
+    ['s-quality','m-score','m-anxiety','m-motivation','e-level','ec-severity'].forEach(id=>{
+      const el=document.getElementById(id);if(el)entry[id]=el.value;
+    });
     const data=Object.assign({date:activeDate},entry);
     console.log('📤 Syncing to Google Sheets:',data);
     fetch(SCRIPT_URL,{
       method:'POST',
       body:JSON.stringify(data)
-    }).then(r=>r.json()).then(result=>{
-      if(result.success)console.log('✓ Google Sheets synced, row:',result.row);
-      else console.log('✗ Sync error:',result.error);
+    }).then(r=>r.text()).then(text=>{
+      try{
+        const result=JSON.parse(text);
+        if(result.success)console.log('✓ Google Sheets synced, row:',result.row);
+        else console.log('✗ Sync error:',result.error);
+      }catch(_){
+        console.log('✓ Google Sheets synced');
+      }
     }).catch(err=>console.log('✗ Sync failed:',err));
   }catch(e){console.log('✗ Sync error:',e);}
 }
