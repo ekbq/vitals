@@ -446,75 +446,9 @@ input[type=range].rose-track::-webkit-slider-thumb{background:var(--rose)}
   </div>
 
   <div class="card">
-    <h2>🍽️ Nutrition & Calories</h2>
-
-    <!-- AI lookup -->
-    <label>Describe any food or meal - AI estimates calories & macros</label>
-    <div class="nutrition-search-wrap">
-      <div class="search-row">
-        <input type="text" class="field-input" id="nutrition-query"
-          placeholder="e.g. chicken rice with egg, 1 banana, laksa..."
-          onkeydown="if(event.key==='Enter')aiLookup()" autocomplete="off">
-        <button class="search-btn" id="search-btn" onclick="aiLookup()">Ask AI</button>
-      </div>
-      <div class="search-status" id="search-status">Describe any food for an instant estimate</div>
-    </div>
-
-    <!-- AI result card -->
-    <div id="ai-result-card" class="ai-result-card hidden">
-      <div class="ai-result-name" id="ai-res-name"></div>
-      <div class="macro-pills" id="ai-res-macros"></div>
-      <div class="ai-result-note" id="ai-res-note"></div>
-      <div class="ai-result-actions">
-        <button class="action-btn pri" onclick="logFromAI()">+ Log this</button>
-        <button class="action-btn" onclick="dismissAI()">Dismiss</button>
-      </div>
-    </div>
-
-    <!-- Also quick-search local DB -->
-    <div class="mt-sm">
-      <label>Or quick-search common foods</label>
-      <div class="nutrition-search-wrap">
-        <div class="search-row">
-          <input type="text" class="field-input" id="local-query"
-            placeholder="e.g. chicken rice, banana..."
-            oninput="onLocalInput()" onkeydown="onLocalKey(event)" autocomplete="off">
-        </div>
-        <div class="search-status" id="local-status" style="display:none"></div>
-        <div id="autocomplete-list" class="autocomplete-list hidden"></div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-    <label>Meals logged today</label>
-    <div id="meal-log"></div>
-
-    <!-- Macro totals -->
-    <div class="macro-totals" id="macro-totals" style="display:none">
-      <div class="macro-total-row">
-        <span class="macro-total-label">Daily macros</span>
-        <span class="macro-total-values" id="macro-total-values"></span>
-      </div>
-    </div>
-
-    <div class="kcal-total"><span class="kcal-lbl">Total consumed</span><span class="kcal-num" id="kcal-total">0 kcal</span></div>
-    <div class="balance-line" id="cal-balance">—</div>
-
-    <div class="divider"></div>
-    <label>Log manually</label>
-    <div class="grid2">
-      <input type="text" class="field-input" id="manual-name" placeholder="Food or meal name">
-      <input type="number" class="field-input" id="manual-kcal" placeholder="kcal" min="0" max="5000">
-    </div>
-    <div class="grid2 mt-sm" style="display:none" id="manual-macros-toggle">
-      <div><label>Protein (g)</label><input type="number" class="field-input" id="manual-protein" placeholder="0" min="0" max="300" step="0.1"></div>
-      <div><label>Carbs (g)</label><input type="number" class="field-input" id="manual-carbs" placeholder="0" min="0" max="500" step="0.1"></div>
-      <div style="grid-column:1/3"><label>Fat (g)</label><input type="number" class="field-input" id="manual-fat" placeholder="0" min="0" max="300" step="0.1"></div>
-    </div>
-    <div style="margin-top:8px;display:flex;gap:6px">
-      <button class="action-btn pri" onclick="logManual()">+ Log manually</button>
-      <button class="action-btn" onclick="toggleMacroFields()" style="flex:0">⚙ Macros</button>
-    </div>
+    <h2>🍽️ Calories</h2>
+    <label>Total calories (kcal)</label>
+    <input type="number" min="0" max="10000" placeholder="e.g. 2000" class="field-input" id="f-total-calories" oninput="sf('f-total-calories')">
   </div>
 </div>
 
@@ -1280,7 +1214,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 // LOAD / SAVE / PROGRESS
 // ================================================================
 function loadEntry(){
-  const textFields=['s-bedtime','s-waketime','e-exercise','e-duration','f-weight','f-bodyfat','f-muscle','f-cals-burnt','f-workout-notes','ec-notes','e-notes','e-training-load'];
+  const textFields=['s-bedtime','s-waketime','e-exercise','e-duration','f-weight','f-bodyfat','f-muscle','f-cals-burnt','f-workout-notes','ec-notes','e-notes','e-training-load','f-total-calories'];
   const sliders=[['s-quality','s-quality-val'],['m-score','m-score-val'],['m-anxiety','m-anxiety-val'],['m-motivation','m-motivation-val'],['e-level','e-level-val'],['ec-severity','ec-severity-val']];
   textFields.forEach(id=>{const el=document.getElementById(id);if(el)el.value=entry[id]!==undefined?entry[id]:'';});
   sliders.forEach(([id,lblId])=>{
@@ -1310,7 +1244,7 @@ function updateStreak(){
 
 function flushSave(showMsg=true){
   ['s-quality','m-score','m-anxiety','m-motivation','e-level','n-dayrating'].forEach(id=>{const el=document.getElementById(id);if(el)entry[id]=el.value;});
-  ['s-bedtime','s-waketime','e-exercise','e-duration','n-good','n-drain','n-intention','n-g1','n-g2','n-g3','n-daytype','f-weight','f-bodyfat','f-muscle','f-cals-burnt','f-workout-notes','ec-severity','ec-notes','e-notes','e-training-load'].forEach(id=>{const el=document.getElementById(id);if(el)entry[id]=el.value;});
+  ['s-bedtime','s-waketime','e-exercise','e-duration','f-weight','f-bodyfat','f-muscle','f-cals-burnt','f-workout-notes','ec-notes','e-notes','e-training-load','f-total-calories'].forEach(id=>{const el=document.getElementById(id);if(el)entry[id]=el.value;});
   const ei=document.getElementById('e-intensity');if(ei)entry['e-intensity']=ei.value;
   entry.savedAt=new Date().toISOString();
   allData[activeDate]=entry;
@@ -1390,35 +1324,73 @@ function syncToGoogleSheets(){
 // ================================================================
 function renderHistory(){
   const sorted=Object.keys(allData).sort();
-  
-  // Determine date range based on currentPeriod
-  let daysBack = 7;
+  let daysBack=7;
   if(currentPeriod==='30d') daysBack=30;
   else if(currentPeriod==='365d') daysBack=365;
-  
-  const datePeriod = sorted.slice(-daysBack);
+  const datePeriod=sorted.slice(-daysBack);
   const recent=[...sorted].reverse().slice(0,20);
-  
+
   const chart=document.getElementById('history-chart');chart.innerHTML='';
   if(!datePeriod.length){chart.innerHTML='<div class="empty-state">No entries yet. Start logging!</div>';}
   else{
-    [{key:'s-quality',label:'💤 Sleep',color:'#6b8f71'},{key:'m-score',label:'😊 Mood',color:'#e8a838'},{key:'e-level',label:'⚡ Energy',color:'#d4687a'},{key:'f-weight',label:'⚖️ Weight',color:'#7c6fcd',weight:true}].forEach(m=>{
+    [{key:'s-quality',label:'💤 Sleep Quality',color:'#6b8f71',max:10},{key:'m-score',label:'😊 Mood Score',color:'#e8a838',max:10},{key:'e-level',label:'⚡ Energy Level',color:'#d4687a',max:10},{key:'f-weight',label:'⚖️ Weight (kg)',color:'#7c6fcd',max:null}].forEach(m=>{
+      const vals=datePeriod.map(d=>parseFloat(allData[d]?.[m.key]||0));
+      const hasData=vals.some(v=>v>0);
       const section=document.createElement('div');section.className='chart-section';
       const lbl=document.createElement('div');lbl.className='chart-metric-label';lbl.textContent=m.label;section.appendChild(lbl);
-      const bg=document.createElement('div');bg.className='bar-group';
-      const vals=datePeriod.map(d=>parseFloat(allData[d]?.[m.key]||0)).filter(v=>v>0);
-      const minV=m.weight?(Math.min(...vals)||0):0,maxV=m.weight?(Math.max(...vals)||1):10;
-      datePeriod.forEach(date=>{
-        const val=parseFloat(allData[date]?.[m.key]||0);
-        const norm=maxV>minV?((val-minV)/(maxV-minV)):0;
-        const pct=m.weight?Math.max(8,norm*100):Math.max(5,(val/10)*100);
-        const bw=document.createElement('div');bw.className='bar-wrap';
-        const bar=document.createElement('div');bar.className='bar';
-        bar.style.cssText=`background:${m.color};opacity:.78;height:${pct}%;`;bar.title=date+': '+(val||'—')+(m.weight?'kg':'/10');
-        const dl=document.createElement('div');dl.className='bar-date';dl.textContent=date.slice(5);
-        bw.appendChild(bar);bw.appendChild(dl);bg.appendChild(bw);
+      if(!hasData){const e=document.createElement('div');e.style.cssText='font-size:.7rem;color:var(--text-sub);font-family:monospace;padding:8px 0';e.textContent='No data yet';section.appendChild(e);chart.appendChild(section);return;}
+      const validVals=vals.filter(v=>v>0);
+      const minV=m.max?0:Math.min(...validVals)*0.98;
+      const maxV=m.max||Math.max(...validVals)*1.02;
+      const W=600,H=80,pad=8;
+      const pts=datePeriod.map((date,i)=>{
+        const v=parseFloat(allData[date]?.[m.key]||0);
+        const x=pad+i*(W-pad*2)/(datePeriod.length-1||1);
+        const y=v>0?H-pad-(v-minV)/(maxV-minV||1)*(H-pad*2):null;
+        return{x,y,v,date};
       });
-      section.appendChild(bg);chart.appendChild(section);
+      const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox',`0 0 ${W} ${H+20}`);
+      svg.style.cssText='width:100%;height:auto;overflow:visible';
+      // Draw line segments between valid points
+      let pathD='';
+      pts.forEach((p,i)=>{
+        if(p.y===null) return;
+        // Find prev valid
+        const prev=pts.slice(0,i).reverse().find(q=>q.y!==null);
+        if(!prev) pathD+=`M${p.x},${p.y}`;
+        else pathD+=`L${p.x},${p.y}`;
+      });
+      if(pathD){
+        const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+        path.setAttribute('d',pathD);
+        path.setAttribute('fill','none');
+        path.setAttribute('stroke',m.color);
+        path.setAttribute('stroke-width','2');
+        path.setAttribute('stroke-linecap','round');
+        path.setAttribute('stroke-linejoin','round');
+        svg.appendChild(path);
+      }
+      // Draw dots and labels
+      pts.forEach((p,i)=>{
+        // Date label
+        const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+        txt.setAttribute('x',p.x);txt.setAttribute('y',H+16);
+        txt.setAttribute('text-anchor','middle');txt.setAttribute('font-size','8');
+        txt.setAttribute('fill','var(--text-sub)');txt.setAttribute('font-family','monospace');
+        if(datePeriod.length<=14||i%Math.ceil(datePeriod.length/10)===0) txt.textContent=p.date.slice(5);
+        svg.appendChild(txt);
+        if(p.y===null) return;
+        const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circle.setAttribute('cx',p.x);circle.setAttribute('cy',p.y);
+        circle.setAttribute('r',datePeriod.length>30?2:3);
+        circle.setAttribute('fill',m.color);
+        const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+        title.textContent=`${p.date}: ${p.v}`;
+        circle.appendChild(title);
+        svg.appendChild(circle);
+      });
+      section.appendChild(svg);chart.appendChild(section);
     });
   }
   const list=document.getElementById('history-list');list.innerHTML='';
